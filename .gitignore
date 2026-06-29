@@ -1,0 +1,9 @@
+.venv
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.DS_Store
+.env
+week1-chatbot/backend/venv
+notebooks/.env
