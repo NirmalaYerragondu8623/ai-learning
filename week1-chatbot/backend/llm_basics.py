@@ -7,13 +7,15 @@ load_dotenv(find_dotenv())
 
 client=OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-def get_openai_completion(prompt, model="gpt-4o-mini"):
+messages=[
+    {'role': 'system', 'content': 'You are an expert AI email marketing assistant'}
+]
+
+def get_openai_completion(messages, model="gpt-4o-mini"):
     try:
         response = client.chat.completions.create(
             model=model,
-            messages=[
-                {'role': 'system', 'content': 'You are an expert AI email marketing assistant'}, 
-                {'role':'user','content':prompt}],
+            messages=messages,
             temperature=0,
             stream=True
         )
@@ -32,9 +34,16 @@ def get_openai_completion(prompt, model="gpt-4o-mini"):
         error_msg = f"OpenAI API Error: {e}"
         print(error_msg)
         return error_msg
+    
 
+def collect_messages(prompt):
+    messages.append({'role':'user','content':f"{prompt}"})
+    response=get_openai_completion(messages)
+    messages.append({'role':'assistant','content':f"{response}"})
+    return response
+    
 
-client2= Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+'''client2= Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 def get_anthropic_completion(prompt, model="claude-3-5-sonnet-20240620"):
     try:
@@ -53,10 +62,14 @@ def get_anthropic_completion(prompt, model="claude-3-5-sonnet-20240620"):
     except Exception as e:
         error_msg = f"Anthropic API Error: {e}"
         print(error_msg)
-        return error_msg
-
-user_msg = input()
-print("\nOPENAI RESPONSE:\n")
-get_openai_completion(user_msg)
-print("\nCLAUDE RESPONSE:\n")
-get_anthropic_completion(user_msg)
+        return error_msg '''
+while True:
+    user_msg = input()
+    if user_msg.strip().lower() in ("exit","quit"):
+        break
+    print("\nAssistant:")
+    collect_messages(user_msg)
+    print()
+    
+    #print("\nCLAUDE RESPONSE:\n")
+    #get_anthropic_completion(user_msg)
