@@ -7,3 +7,4 @@ __pycache__/
 .env
 week1-chatbot/backend/venv
 notebooks/.env
+week1-chatbot/backend/.env
