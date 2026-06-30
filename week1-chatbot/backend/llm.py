@@ -25,3 +25,21 @@ async def get_reply(message: str, history: list) -> tuple[str, list]:
     ]
 
     return reply, updated_history
+
+async def stream_reply(message:str,history:list):
+    messages=[{'role':'system','content':SYSTEM_PROMPT}]
+    messages.extend(history)
+    messages.append({'role':'user','content':message})
+
+    response=await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=messages,
+        stream=True
+    )
+    
+    async for chunk in response:
+        delta=chunk.choices[0].delta
+        if delta.content:
+            yield delta.content
+            
+
