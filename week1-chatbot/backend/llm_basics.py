@@ -11,17 +11,19 @@ client=OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 tools=[
     {
         "type":"function",
-        "name":"get_campaign_stats",
-        "description":"Get the performance metrics for a Campaign",
-        "parameters":{
-            "type":"object",
-            "properties":{
-                "campaign":{
-                    "type":"string",
-                    "description":"A Campaign name like C001 or C002",
+        "function":{
+            "name":"get_campaign_stats",
+            "description":"Get the performance metrics for a Campaign",
+            "parameters":{
+                "type":"object",
+                "properties":{
+                    "campaign":{
+                        "type":"string",
+                        "description":"A Campaign name like C001 or C002",
+                    },
                 },
+                "required":["campaign"],
             },
-            "required":["campaign"],
         },
     },
 ]
@@ -35,49 +37,56 @@ messages=[
 
 def get_openai_completion(messages, model="gpt-4o-mini"):
     try:
-        response = client.responses.create(
+        response = client.chat.completions.create(
             model=model,
-            input=messages,
+            messages=messages,
             tools=tools,
             temperature=0,
             stream=True
         )
         content=""
-        function_calls={}
-        for event in response:
-            if event.type == "response.output_text.delta":
-                token = event.delta
-                print(token,end="",flush=True)
-                content+=token
-            elif event.type == "response.output_item.added" and event.item.type == "function_call":
-                function_calls[event.item.id] = {
-                    "call_id": event.item.call_id,
-                    "name": event.item.name,
-                    "arguments": ""
-                }
-            elif event.type == "response.function_call_arguments.delta":
-                function_calls[event.item_id]["arguments"] += event.delta
-            elif event.type == "response.completed":
+        tool_calls={}
+        for chunk in response:
+            delta=chunk.choices[0].delta
+            if delta.content:
+                print(delta.content,end="",flush=True)
+                content+=delta.content
+            if delta.tool_calls:
+                for tc in delta.tool_calls:
+                    if tc.index not in tool_calls:
+                        tool_calls[tc.index]={"id":tc.id,"name":"","arguments":""}
+                    if tc.id:
+                        tool_calls[tc.index]["id"]=tc.id
+                    if tc.function.name:
+                        tool_calls[tc.index]["name"]+=tc.function.name
+                    if tc.function.arguments:
+                        tool_calls[tc.index]["arguments"]+=tc.function.arguments
+            if chunk.choices[0].finish_reason is not None:
                 break
         print()
 
-        if function_calls:
-            for call in function_calls.values():
-                messages.append({
-                    "type": "function_call",
-                    "call_id": call["call_id"],
-                    "name": call["name"],
-                    "arguments": call["arguments"]
-                })
+        if tool_calls:
+            messages.append({
+                "role":"assistant",
+                "content":content or None,
+                "tool_calls":[
+                    {
+                        "id":call["id"],
+                        "type":"function",
+                        "function":{"name":call["name"],"arguments":call["arguments"]}
+                    } for call in tool_calls.values()
+                ]
+            })
+            for call in tool_calls.values():
                 args = json.loads(call["arguments"]) if call["arguments"] else {}
                 if call["name"] == "get_campaign_stats":
                     result = get_campaign_stats(**args)
                 else:
                     result = f"Unknown tool: {call['name']}"
                 messages.append({
-                    "type": "function_call_output",
-                    "call_id": call["call_id"],
-                    "output": result
+                    "role":"tool",
+                    "tool_call_id":call["id"],
+                    "content":result
                 })
             return get_openai_completion(messages, model)
 
