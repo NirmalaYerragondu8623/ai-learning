@@ -5,4 +5,5 @@ class ChatRequest(BaseModel):
     history: list[dict]=[]
 
 class ChatResponse(BaseModel):
-    reply: str
+    reply:str
+    history: list[dict]
