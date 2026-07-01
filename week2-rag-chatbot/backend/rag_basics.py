@@ -136,7 +136,8 @@ async def rag_answer(question:str)->str:
     return response.choices[0].message.content
 
 async def test():
-    answer=await rag_answer("What is RAG?")
+    query=input("Enter your question: ")
+    answer=await rag_answer(query)
     print("\nAnswer:",answer)
 
 asyncio.run(test())

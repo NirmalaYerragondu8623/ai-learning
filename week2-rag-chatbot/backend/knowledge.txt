@@ -38,4 +38,3 @@ Deliverability issues often arise from over-mailing; throttling frequency helps 
 
 Continuous testing and optimization across subject lines, send times, and audience segments is the hallmark of effective email marketing.
 
-Subject line personalization and send-time optimization are the two biggest factors that directly improve email open rates.
