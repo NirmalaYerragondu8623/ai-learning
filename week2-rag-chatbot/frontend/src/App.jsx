@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-const API_URL = "http://127.0.0.1:8001";
+const API_URL = "http://127.0.0.1:8000"; // week2 RAG backend — /query/stream, /ingest
 
 export default function App() {
   const [messages, setMessages] = useState([
@@ -12,6 +12,8 @@ export default function App() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [uploadStatus, setUploadStatus] = useState(null);
+  const [uploading, setUploading] = useState(false);
   const bottomRef = useRef(null);
 
   // Auto-scroll to latest message
@@ -23,7 +25,6 @@ export default function App() {
     if (!input.trim() || loading) return;
 
     const userMessage = { role: "user", content: input };
-    const history = messages.map(({ role, content }) => ({ role, content }));
 
     // Push the user message plus an empty assistant bubble that tokens stream into
     setMessages(prev => [...prev, userMessage, { role: "assistant", content: "" }]);
@@ -32,10 +33,10 @@ export default function App() {
     setError(null);
 
     try {
-      const res = await fetch(`${API_URL}/chat/stream`, {
+      const res = await fetch(`${API_URL}/query/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: userMessage.content, history })
+        body: JSON.stringify({ question: userMessage.content })
       });
 
       if (!res.ok || !res.body) throw new Error("API error");
@@ -76,6 +77,34 @@ export default function App() {
     }
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadStatus(null);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const res = await fetch(`${API_URL}/ingest`, {
+        method: "POST",
+        body: formData // No Content-Type header — browser sets it with boundary
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+
+      const data = await res.json();
+      setUploadStatus(`✅ ${data.filename} — ${data.chunks_added} chunks indexed. Ready to query!`);
+    } catch (err) {
+      setUploadStatus("❌ Upload failed. Please try a .txt file.");
+    } finally {
+      setUploading(false);
+      e.target.value = ""; // Reset file input
+    }
+  };
+
   const handleKeyDown = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -88,6 +117,29 @@ export default function App() {
       <div style={styles.header}>
         <h1 style={styles.title}>📧 Email Marketing AI Assistant</h1>
         <p style={styles.subtitle}>Powered by RAG — answers grounded in your knowledge base</p>
+      </div>
+
+      {/* File upload section */}
+      <div style={styles.uploadSection}>
+        <label style={styles.uploadLabel}>
+          <input
+            type="file"
+            accept=".txt"
+            onChange={handleFileUpload}
+            disabled={uploading}
+            style={{ display: "none" }}
+          />
+          <span style={{
+            ...styles.uploadButton,
+            opacity: uploading ? 0.5 : 1,
+            cursor: uploading ? "not-allowed" : "pointer"
+          }}>
+            {uploading ? "Uploading..." : "📄 Upload knowledge base (.txt)"}
+          </span>
+        </label>
+        {uploadStatus && (
+          <p style={styles.uploadStatus}>{uploadStatus}</p>
+        )}
       </div>
 
       <div style={styles.chatBox}>
@@ -177,6 +229,32 @@ const styles = {
     margin: "4px 0 0",
     fontSize: "0.8rem",
     color: "#888"
+  },
+  uploadSection: {
+    padding: "0.75rem 1.5rem",
+    borderBottom: "1px solid #2A2A3E",
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    flexWrap: "wrap"
+  },
+  uploadLabel: {
+    cursor: "pointer"
+  },
+  uploadButton: {
+    padding: "6px 14px",
+    borderRadius: "6px",
+    border: "1px solid #4F46E5",
+    color: "#4F46E5",
+    fontSize: "0.82rem",
+    fontWeight: 500,
+    background: "transparent",
+    display: "inline-block"
+  },
+  uploadStatus: {
+    fontSize: "0.8rem",
+    color: "#aaa",
+    margin: 0
   },
   chatBox: {
     flex: 1,

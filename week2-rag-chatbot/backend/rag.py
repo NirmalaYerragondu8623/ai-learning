@@ -3,6 +3,7 @@ vectorstore once at module level — not inside the function, or it re-loads on 
 
 
 import os
+from typing import AsyncGenerator
 from dotenv import load_dotenv,find_dotenv
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -80,4 +81,33 @@ async def rag_answer(question:str)->tuple[str,list[str]]:
     sources=list(dict.fromkeys(sources))
 
     return answer,sources
+
+async def stream_rag_answer(question: str) -> AsyncGenerator[str, None]:
+    # Step 1: Retrieve relevant chunks (sync, fast)
+    source_docs = retriever.invoke(question)
+    context = "\n\n".join(doc.page_content for doc in source_docs)
+
+    # Step 2: Build the grounded prompt
+    full_prompt = f"""Answer using ONLY the context below.
+If the answer isn't in the context, say "I don't have that information."
+
+Context:
+{context}
+
+Question: {question}"""
+
+    # Step 3: Stream the generation using AsyncOpenAI directly
+    from openai import AsyncOpenAI
+    client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+    stream = await client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": full_prompt}],
+        stream=True
+    )
+
+    async for chunk in stream:
+        delta = chunk.choices[0].delta
+        if delta.content:
+            yield delta.content
 
