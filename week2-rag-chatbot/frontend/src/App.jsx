@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "http://127.0.0.1:8001";
 
 export default function App() {
   const [messages, setMessages] = useState([
@@ -23,32 +23,54 @@ export default function App() {
     if (!input.trim() || loading) return;
 
     const userMessage = { role: "user", content: input };
-    setMessages(prev => [...prev, userMessage]);
+    const history = messages.map(({ role, content }) => ({ role, content }));
+
+    // Push the user message plus an empty assistant bubble that tokens stream into
+    setMessages(prev => [...prev, userMessage, { role: "assistant", content: "" }]);
     setInput("");
     setLoading(true);
     setError(null);
 
     try {
-      const res = await fetch(`${API_URL}/query`, {
+      const res = await fetch(`${API_URL}/chat/stream`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: input })
+        body: JSON.stringify({ message: userMessage.content, history })
       });
 
-      if (!res.ok) throw new Error("API error");
+      if (!res.ok || !res.body) throw new Error("API error");
 
-      const data = await res.json();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let assistantText = "";
 
-      const assistantMessage = {
-        role: "assistant",
-        content: data.answer,
-        sources: data.sources || []
-      };
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      setMessages(prev => [...prev, assistantMessage]);
+        assistantText += decoder.decode(value, { stream: true });
+
+        // Replace the last (assistant) message's content in place — never append a new bubble per chunk
+        setMessages(prev => {
+          const next = [...prev];
+          next[next.length - 1] = { role: "assistant", content: assistantText };
+          return next;
+        });
+      }
+      assistantText += decoder.decode();
+      setMessages(prev => {
+        const next = [...prev];
+        next[next.length - 1] = { role: "assistant", content: assistantText };
+        return next;
+      });
 
     } catch (err) {
       setError("Something went wrong. Please try again.");
+      // Drop the empty assistant bubble if nothing streamed in before the failure
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        return last?.role === "assistant" && last.content === "" ? prev.slice(0, -1) : prev;
+      });
     } finally {
       setLoading(false);
     }
@@ -82,7 +104,11 @@ export default function App() {
                 ? "18px 18px 4px 18px"
                 : "18px 18px 18px 4px"
             }}>
-              <p style={styles.bubbleText}>{msg.content}</p>
+              <p style={styles.bubbleText}>
+                {msg.role === "assistant" && msg.content === "" && loading
+                  ? "Thinking..."
+                  : msg.content}
+              </p>
               {msg.sources && msg.sources.length > 0 && (
                 <div style={styles.sources}>
                   <p style={styles.sourcesLabel}>Sources:</p>
@@ -94,14 +120,6 @@ export default function App() {
             </div>
           </div>
         ))}
-
-        {loading && (
-          <div style={{ ...styles.messageWrap, justifyContent: "flex-start" }}>
-            <div style={{ ...styles.bubble, background: "#1E1E2E", color: "#888" }}>
-              <p style={styles.bubbleText}>Thinking...</p>
-            </div>
-          </div>
-        )}
 
         {error && (
           <p style={styles.error}>{error}</p>
