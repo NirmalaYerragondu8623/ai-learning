@@ -1,9 +1,9 @@
 import os
 from dotenv import load_dotenv
-import anthropic
+from anthropic import AsyncAnthropic
 
 load_dotenv()
-client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+client = AsyncAnthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
 SYSTEM_PROMPT = "You are an expert AI email marketing assistant with deep knowledge of Marketo and Eloqua."
 
