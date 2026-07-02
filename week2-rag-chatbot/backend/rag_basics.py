@@ -135,9 +135,89 @@ async def rag_answer(question:str)->str:
     )
     return response.choices[0].message.content
 
-async def test():
-    query=input("Enter your question: ")
-    answer=await rag_answer(query)
-    print("\nAnswer:",answer)
+# async def test():
+#     query=input("Enter your question: ")
+#     answer=await rag_answer(query)
+#     print("\nAnswer:",answer)
 
-asyncio.run(test())
+# asyncio.run(test())
+
+
+#section4: RAG with Langchain
+import bs4
+import requests
+from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_openai import OpenAIEmbeddings
+from langchain_chroma import Chroma
+from langchain_community.document_loaders import TextLoader
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_openai import ChatOpenAI
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
+
+# 1. Load the text file
+loader=TextLoader("knowledge.txt")
+
+# 2. Load documents (returns a list of Document objects)
+documents=loader.load()
+
+# 3. Inspect the first document
+#print(documents[0].page_content)
+
+# Create a splitter (e.g., 500 characters per chunk)
+splitter=RecursiveCharacterTextSplitter(
+        chunk_size=200,
+        chunk_overlap=30,
+        separators=["\n\n","\n",". "," ",""]
+    )
+
+# Split into chunks
+chunks=splitter.split_documents(documents)
+
+# print(f"Number of chunks:{len(chunks)}")
+# print(chunks[0].page_content)
+
+# 4.Initiialize embeddings (OpenAI)
+embeddings=OpenAIEmbeddings(model="text-embedding-3-small")
+
+# 5. Build a Chroma vectorstore with a separate persist directory
+vectorstore=Chroma.from_documents(
+    documents=chunks,
+    embedding=embeddings,
+    persist_directory='./lc_chroma_db' #separate diecrectory for lanchain Chroma DB
+)
+
+print('Knowledge base successfully embedded into Chroma (lc_chroma_db.')
+
+# Build retriever
+retriever=vectorstore.as_retriever(search_kwargs={"k":3})
+
+# Build Prompt
+prompt = ChatPromptTemplate.from_template(
+    """Answer using ONLY the below context.
+    If the answer isn't in the context, say "I don't have that information."
+    Context:{context}
+    Question:{question}
+    """
+) 
+
+#Build LLM
+llm=ChatOpenAI(model="gpt-4o-mini")
+
+# Build LECL chain
+def format_docs(docs):
+    return "\n\n".join(doc.page_content for doc in docs)
+
+chain=(
+    {"context":retriever | format_docs, "question":RunnablePassthrough()}
+    |prompt
+    |llm
+    |StrOutputParser()
+)
+
+#Test with same 3 questions
+user_query=input("Enter your question:")
+answer=chain.invoke(user_query)
+print("Answer:",answer)
