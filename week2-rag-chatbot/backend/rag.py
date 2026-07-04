@@ -3,11 +3,12 @@ vectorstore once at module level — not inside the function, or it re-loads on 
 
 
 import os
+import time
 from typing import AsyncGenerator
 from dotenv import load_dotenv,find_dotenv
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -20,7 +21,7 @@ load_dotenv(find_dotenv())
 # If lc_chroma_db doesn't exist yet, it builds and persists it
 PERSIST_DIR="./lc_chroma_db"
 KNOWLEDGE_DIR = "./knowledge_base"
-embeddings=OpenAIEmbeddings(model="text-embedding-3-small")
+embeddings=GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
 
 if os.path.exists(PERSIST_DIR) and os.listdir(PERSIST_DIR):
     #Already indexed - just load from disk
@@ -43,11 +44,16 @@ else:
         separators=["\n\n","\n",". "," ",""]
     )
     chunks=splitter.split_documents(documents)
-    vectorstore=Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        persist_directory=PERSIST_DIR
-    )
+
+    # Gemini's free tier caps embedding calls at ~100/minute. Feed chunks in
+    # small batches with a cooldown so a large first-time index doesn't 429.
+    EMBED_BATCH_SIZE = 80
+    vectorstore=Chroma(persist_directory=PERSIST_DIR, embedding_function=embeddings)
+    for i in range(0, len(chunks), EMBED_BATCH_SIZE):
+        batch = chunks[i:i + EMBED_BATCH_SIZE]
+        vectorstore.add_documents(batch)
+        if i + EMBED_BATCH_SIZE < len(chunks):
+            time.sleep(65)
 
 retriever = vectorstore.as_retriever(search_kwargs={"k":3})
 
@@ -60,7 +66,7 @@ Context:{context}
 Question:{question}
 """)
 
-llm=ChatOpenAI(model="gpt-4o-mini")
+llm=ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
@@ -101,18 +107,8 @@ Context:
 
 Question: {question}"""
 
-    # Step 3: Stream the generation using AsyncOpenAI directly
-    from openai import AsyncOpenAI
-    client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-
-    stream = await client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[{"role": "user", "content": full_prompt}],
-        stream=True
-    )
-
-    async for chunk in stream:
-        delta = chunk.choices[0].delta
-        if delta.content:
-            yield delta.content
+    # Step 3: Stream the generation using the Gemini chat model directly
+    async for chunk in llm.astream(full_prompt):
+        if chunk.content:
+            yield chunk.content
 

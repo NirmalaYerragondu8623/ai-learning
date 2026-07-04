@@ -18,7 +18,7 @@ app.add_middleware(
 
 @app.get("/health")
 async def health():
-    return {"status":"OK","model":"gpt-4o-mini"}
+    return {"status":"OK","model":"gemini-2.5-flash"}
 
 @app.post("/query", response_model=RagResponse)
 async def rag_query(req:RagRequest):
