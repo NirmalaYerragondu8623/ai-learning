@@ -51,12 +51,12 @@ async def ingest_file(file: UploadFile = File(...)):
         from langchain_community.document_loaders import TextLoader
         from langchain_text_splitters import RecursiveCharacterTextSplitter
         
-        loader = TextLoader(tmp_path)
+        loader = TextLoader(tmp_path, encoding="utf-8")
         documents = loader.load()
         
         splitter = RecursiveCharacterTextSplitter(
-            chunk_size=200,
-            chunk_overlap=30,
+            chunk_size=500,
+            chunk_overlap=75,
             separators=["\n\n", "\n", ". ", " ", ""]
         )
         chunks = splitter.split_documents(documents)

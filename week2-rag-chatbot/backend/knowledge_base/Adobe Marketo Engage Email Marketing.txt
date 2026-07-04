@@ -1,50 +1,50 @@
 # Adobe Marketo Engage Email Marketing Automation
 
 ## Platform overview
-Adobe Marketo Engage organizes marketing initiatives through programs, which act as containers for local assets such as emails, landing pages, and Smart Campaigns.[web:6] The platform is built around flexible automation using Smart Campaigns, reusable tokens, segmentation features, and integrations such as webhooks.[web:6][web:11]
+Adobe Marketo Engage organizes marketing initiatives through programs, which act as containers for local assets such as emails, landing pages, and Smart Campaigns. The platform is built around flexible automation using Smart Campaigns, reusable tokens, segmentation features, and integrations such as webhooks.
 
 ## Campaign lifecycle
 ### Planning
-Campaign planning in Marketo usually begins by choosing the right program type for the initiative: Email, Engagement, Event, or Default.[web:6] That selection determines the operating pattern, whether the campaign is a classic blast, a nurture stream, an event workflow, or a flexible catch-all structure.[web:6]
+Campaign planning in Marketo usually begins by choosing the right program type for the initiative: Email, Engagement, Event, or Default. That selection determines the operating pattern, whether the campaign is a classic blast, a nurture stream, an event workflow, or a flexible catch-all structure.
 
 ### Creation
-Campaign creation happens inside programs, where marketers assemble local assets and automation logic.[web:6] Smart Campaigns are then used to define eligibility and behavior through filters, triggers, and flow steps, while tokens help standardize variable content across emails, landing pages, and automation.[web:14][web:19]
+Campaign creation happens inside programs, where marketers assemble local assets and automation logic. Smart Campaigns are then used to define eligibility and behavior through filters, triggers, and flow steps, while tokens help standardize variable content across emails, landing pages, and automation.
 
 ### Scheduling
-Scheduling in Marketo depends on campaign design: batch campaigns can be run on demand or on a schedule, while triggered campaigns react to behavioral or data events as they happen.[web:9] Engagement programs also support drip-style nurturing at a set periodic cadence.[web:6]
+Scheduling in Marketo depends on campaign design: batch campaigns can be run on demand or on a schedule, while triggered campaigns react to behavioral or data events as they happen. Engagement programs also support drip-style nurturing at a set periodic cadence.
 
 ### Deployment
-Deployment typically happens by activating Smart Campaigns or launching the selected program type.[web:6][web:9] Email programs are optimized for classic mail blasts and include built-in features such as A/B testing and Email Head Start.[web:6]
+Deployment typically happens by activating Smart Campaigns or launching the selected program type. Email programs are optimized for classic mail blasts and include built-in features such as A/B testing and Email Head Start.
 
 ### Maintenance
-Maintenance in Marketo requires regular monitoring of campaign activity, audience logic, and data cleanliness.[web:9] Because Smart Campaigns can continue processing people over time, operational health depends on reviewing campaign throughput, wait steps, removals from flow, and the quality of underlying database values.[web:9]
+Maintenance in Marketo requires regular monitoring of campaign activity, audience logic, and data cleanliness. Because Smart Campaigns can continue processing people over time, operational health depends on reviewing campaign throughput, wait steps, removals from flow, and the quality of underlying database values.
 
 ## Program types
-Marketo provides four core program types.[web:6] Email programs are intended for classic blast sends, Engagement programs for drip nurturing, Event programs for live or online events with a specific date and time, and Default programs for initiatives that do not fit the other categories.[web:6]
+Marketo provides four core program types. Email programs are intended for classic blast sends, Engagement programs for drip nurturing, Event programs for live or online events with a specific date and time, and Default programs for initiatives that do not fit the other categories.
 
-This structure gives marketers flexibility while preserving campaign organization.[web:6] It also makes templates especially useful, because teams can standardize recurring campaign builds within each program type.[web:4][web:6]
+This structure gives marketers flexibility while preserving campaign organization. It also makes templates especially useful, because teams can standardize recurring campaign builds within each program type.
 
 ## Smart Campaigns
-Smart Campaigns are the automation engine in Marketo and use Smart Lists plus flow logic to determine who qualifies and what happens next.[web:9][web:15] Triggered campaigns respond to events, while batch campaigns process audiences in defined runs and can be measured in campaign activity reports.[web:9]
+Smart Campaigns are the automation engine in Marketo and use Smart Lists plus flow logic to determine who qualifies and what happens next. Triggered campaigns respond to events, while batch campaigns process audiences in defined runs and can be measured in campaign activity reports.
 
-Flow actions can include tokenized changes, alerts, CRM actions, and webhooks.[web:14][web:13] Webhooks are especially valuable when campaigns need to send or receive data from third-party services, and Marketo supports tokens in webhook URLs, templates, and headers.[web:11]
+Flow actions can include tokenized changes, alerts, CRM actions, and webhooks. Webhooks are especially valuable when campaigns need to send or receive data from third-party services, and Marketo supports tokens in webhook URLs, templates, and headers.
 
 ## Assets
-Local assets in Marketo programs include emails, landing pages, and Smart Campaigns.[web:6] In practice, marketers also work heavily with forms, Smart Lists, tokens, and webhooks as operational building blocks for campaign execution and enrichment.[web:11][web:14][web:15]
+Local assets in Marketo programs include emails, landing pages, and Smart Campaigns. In practice, marketers also work heavily with forms, Smart Lists, tokens, and webhooks as operational building blocks for campaign execution and enrichment.
 
-Emails can inherit tokenized content, landing pages can be personalized, Smart Lists define target audiences, and webhooks extend Marketo beyond native actions by connecting to outside systems.[web:14][web:11] This asset model is one reason Marketo is often seen as highly adaptable for different campaign architectures.[web:6]
+Emails can inherit tokenized content, landing pages can be personalized, Smart Lists define target audiences, and webhooks extend Marketo beyond native actions by connecting to outside systems. This asset model is one reason Marketo is often seen as highly adaptable for different campaign architectures.
 
 ## Segmentation and personalization
-Marketo supports segmentation through Smart Lists and segment filters, letting marketers target people by behavioral, demographic, or segmentation-based criteria.[web:15] Personalization is powered heavily by tokens, including My Tokens at the program level and other token types used in emails, landing pages, snippets, web campaigns, and flow steps.[web:14][web:19]
+Marketo supports segmentation through Smart Lists and segment filters, letting marketers target people by behavioral, demographic, or segmentation-based criteria. Personalization is powered heavily by tokens, including My Tokens at the program level and other token types used in emails, landing pages, snippets, web campaigns, and flow steps.
 
-This makes Marketo strong for scalable reuse because one program can localize variable content across multiple assets.[web:14][web:19] Its account-based marketing capabilities also benefit from structured segmentation and program-level configuration, though success depends on disciplined field management and clean audience data.[web:15][web:11]
+This makes Marketo strong for scalable reuse because one program can localize variable content across multiple assets. Its account-based marketing capabilities also benefit from structured segmentation and program-level configuration, though success depends on disciplined field management and clean audience data.
 
 ## Reporting and analytics
-Marketo offers reporting at the campaign and engagement level, including Campaign Activity reports that show batch runs, people processed, people in wait steps, removals from flow, and last activity.[web:9] This reporting helps marketers understand how Smart Campaigns are operating and where flow bottlenecks may exist.[web:9]
+Marketo offers reporting at the campaign and engagement level, including Campaign Activity reports that show batch runs, people processed, people in wait steps, removals from flow, and last activity. This reporting helps marketers understand how Smart Campaigns are operating and where flow bottlenecks may exist.
 
-For broader measurement, Marketo is commonly associated with engagement reporting and attribution analysis through Adobe's attribution capabilities and Revenue Explorer environments, depending on instance setup and licensing.[web:17][web:18] In day-to-day execution, marketers typically combine program performance, smart campaign throughput, and engagement metrics to evaluate campaign health and contribution.[web:6][web:9]
+For broader measurement, Marketo is commonly associated with engagement reporting and attribution analysis through Adobe's attribution capabilities and Revenue Explorer environments, depending on instance setup and licensing. In day-to-day execution, marketers typically combine program performance, smart campaign throughput, and engagement metrics to evaluate campaign health and contribution.
 
 ## Strengths and challenges
-Marketo's main strength is flexibility.[web:6][web:11] Its mix of program types, Smart Campaign logic, tokens, and extensibility through webhooks supports many campaign designs without forcing a single workflow model.[web:6][web:14]
+Marketo's main strength is flexibility. Its mix of program types, Smart Campaign logic, tokens, and extensibility through webhooks supports many campaign designs without forcing a single workflow model.
 
-Its main challenge is operational discipline around database hygiene.[web:9][web:15] Because segmentation, triggers, tokens, and campaign logic all depend on reliable field values and clear lifecycle rules, poor data governance can quickly reduce reporting accuracy and automation quality.[web:9][web:14]
+Its main challenge is operational discipline around database hygiene. Because segmentation, triggers, tokens, and campaign logic all depend on reliable field values and clear lifecycle rules, poor data governance can quickly reduce reporting accuracy and automation quality.

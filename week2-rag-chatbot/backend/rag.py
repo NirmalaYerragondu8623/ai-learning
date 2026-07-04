@@ -35,12 +35,13 @@ else:
     loader = DirectoryLoader(
         KNOWLEDGE_DIR,
         glob="**/*.txt",
-        loader_cls=TextLoader
+        loader_cls=TextLoader,
+        loader_kwargs={"encoding": "utf-8"}
     )
     documents = loader.load()
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=200,
-        chunk_overlap=30,
+        chunk_size=500,
+        chunk_overlap=75,
         separators=["\n\n","\n",". "," ",""]
     )
     chunks=splitter.split_documents(documents)

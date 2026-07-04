@@ -1,9 +1,9 @@
 Smart Campaign in Adobe Marketo Engage
 Overview
-A Smart Campaign is one of the core automation objects in Marketo.[cite:25] It is structured around three main areas: Smart List, Flow, and Schedule.[cite:25]
+A Smart Campaign is one of the core automation objects in Marketo. It is structured around three main areas: Smart List, Flow, and Schedule.
 Structure
-The Smart List defines who qualifies for the campaign.[cite:25] The Flow defines what actions occur for those qualified people, and the Schedule controls when processing happens.[cite:25]
+The Smart List defines who qualifies for the campaign. The Flow defines what actions occur for those qualified people, and the Schedule controls when processing happens.
 Campaign logic
-Smart Campaigns can be batch-driven or trigger-driven.[cite:25] Batch campaigns process people on a defined schedule, while trigger campaigns listen continuously for qualifying behaviors or data changes.[cite:25]
+Smart Campaigns can be batch-driven or trigger-driven. Batch campaigns process people on a defined schedule, while trigger campaigns listen continuously for qualifying behaviors or data changes.
 Practical importance
-Smart Campaigns are central to Marketo automation because they turn audience rules into executable processes.[cite:25][cite:28] Their flexibility is powerful, but as automation scales, clear governance and reliable data become essential for maintainability.[cite:33][cite:28]
+Smart Campaigns are central to Marketo automation because they turn audience rules into executable processes. Their flexibility is powerful, but as automation scales, clear governance and reliable data become essential for maintainability.

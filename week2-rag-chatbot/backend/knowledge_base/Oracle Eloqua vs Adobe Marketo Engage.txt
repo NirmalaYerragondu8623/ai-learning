@@ -1,19 +1,19 @@
 # Oracle Eloqua vs Adobe Marketo Engage
 
 ## Platform comparison
-The two platforms both support enterprise email marketing automation, but they differ in how campaigns are structured and managed.[page:2][web:6] Eloqua centers more visibly on the Campaign Canvas for journey orchestration, while Marketo organizes work through programs powered by Smart Campaigns.[page:2][web:6]
+The two platforms both support enterprise email marketing automation, but they differ in how campaigns are structured and managed. Eloqua centers more visibly on the Campaign Canvas for journey orchestration, while Marketo organizes work through programs powered by Smart Campaigns.
 
 ## Comparison table
 
 | Area | Oracle Eloqua | Adobe Marketo Engage |
 |---|---|---|
-| Campaign types | Uses simple campaigns, A/B testing campaigns, and multi-step campaigns on Campaign Canvas.[page:1] | Uses Email, Engagement, Event, and Default programs.[web:6] |
-| Workflow builder | Campaign Canvas is a visual multi-step workflow for orchestrated journeys.[web:1][page:2] | Smart Campaigns drive automation through triggers, filters, and flow steps within programs.[web:9][web:14] |
-| Core assets | Emails, SMS, forms, landing pages, and external assets/activities for reporting.[web:2][page:2] | Emails, landing pages, Smart Campaigns, Smart Lists, forms, tokens, and webhooks.[web:6][web:11][web:14] |
-| Personalization | Dynamic content, conditional routing, dynamic signatures, and send-time optimization.[web:3][page:2] | Smart Lists, segment filters, tokens, snippets, and program-level personalization patterns.[web:14][web:15][web:19] |
-| Reporting | Operational reports, Insight reports, dashboards, campaign metrics, and external activity visibility.[web:2][page:1] | Campaign Activity reports, engagement reporting, and attribution-oriented analysis environments such as Revenue Explorer depending on setup.[web:9][web:17] |
-| Strengths | Enterprise scalability, sophisticated orchestration, and broad reporting support.[web:2][page:1] | High flexibility, reusable logic, strong tokenization, and extensibility through webhooks.[web:11][web:14] |
-| Challenges | Greater complexity, steeper learning curve, and heavier governance needs.[web:3][page:1] | Requires careful database hygiene and governance for reliable automation and reporting.[web:9][web:15] |
+| Campaign types | Uses simple campaigns, A/B testing campaigns, and multi-step campaigns on Campaign Canvas. | Uses Email, Engagement, Event, and Default programs. |
+| Workflow builder | Campaign Canvas is a visual multi-step workflow for orchestrated journeys. | Smart Campaigns drive automation through triggers, filters, and flow steps within programs. |
+| Core assets | Emails, SMS, forms, landing pages, and external assets/activities for reporting. | Emails, landing pages, Smart Campaigns, Smart Lists, forms, tokens, and webhooks. |
+| Personalization | Dynamic content, conditional routing, dynamic signatures, and send-time optimization. | Smart Lists, segment filters, tokens, snippets, and program-level personalization patterns. |
+| Reporting | Operational reports, Insight reports, dashboards, campaign metrics, and external activity visibility. | Campaign Activity reports, engagement reporting, and attribution-oriented analysis environments such as Revenue Explorer depending on setup. |
+| Strengths | Enterprise scalability, sophisticated orchestration, and broad reporting support. | High flexibility, reusable logic, strong tokenization, and extensibility through webhooks. |
+| Challenges | Greater complexity, steeper learning curve, and heavier governance needs. | Requires careful database hygiene and governance for reliable automation and reporting. |
 
 ## Practical interpretation
-Eloqua is often a stronger fit when an organization needs highly structured, multi-step orchestration and centralized visibility across complex campaigns.[web:3][page:1] Marketo is often a stronger fit when teams prioritize adaptable program templates, tokenized reuse, and flexible execution patterns tied closely to database operations.[web:6][web:14]
+Eloqua is often a stronger fit when an organization needs highly structured, multi-step orchestration and centralized visibility across complex campaigns. Marketo is often a stronger fit when teams prioritize adaptable program templates, tokenized reuse, and flexible execution patterns tied closely to database operations.
