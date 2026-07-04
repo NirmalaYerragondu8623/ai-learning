@@ -1,0 +1,8 @@
+venv/
+.env
+__pycache__/
+*.pyc
+chroma_db/
+lc_chroma_db/
+test.json
+marketo-to-eloqua.pdf

@@ -10,3 +10,4 @@ notebooks/.env
 week1-chatbot/backend/.env
 week2-rag-chatbot/backend/venv
 week2-rag-chatbot/backend/.env
+week2-rag-chatbot/backend/lc_chroma_db/

@@ -1,0 +1,7 @@
+Reporting and Analytics in Adobe Marketo Engage and Oracle Eloqua
+Oracle Eloqua
+Oracle Eloqua provides campaign operational reports directly related to active and recent campaign behavior.[cite:8] Oracle's reporting includes Campaign Audit, Campaign Entry, Campaign Exit, Campaign Email Statistics, Campaign SMS Statistics, and Stuck Records Report.[cite:8]
+These reports help marketers track campaign changes, understand how contacts entered or exited the workflow, measure delivery and engagement outcomes, and identify records that are not progressing as expected.[cite:8] Oracle also notes that campaign operational reports cover only the last three months, so longer-term analysis should use Insight reports or dashboards.[cite:8]
+Adobe Marketo Engage
+In Marketo, reporting and analytics are closely connected to Smart Campaign logic, Smart Lists, and program structure.[cite:25][cite:28] Because Smart Lists are used in campaigns, reports, segmentations, and engagement programs, audience logic directly influences reporting quality and interpretation.[cite:28]
+Marketo operational analysis typically focuses on who qualifies for a Smart Campaign, how the flow processes those people, and whether scheduled or triggered logic is working as intended.[cite:25] This makes reporting highly actionable, but it also means weak database hygiene can reduce both campaign performance and measurement accuracy.[cite:33][cite:28]

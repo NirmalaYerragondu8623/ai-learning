@@ -5,7 +5,7 @@ vectorstore once at module level — not inside the function, or it re-loads on 
 import os
 from typing import AsyncGenerator
 from dotenv import load_dotenv,find_dotenv
-from langchain_community.document_loaders import TextLoader
+from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_chroma import Chroma
@@ -19,7 +19,7 @@ load_dotenv(find_dotenv())
 # This runs when FastAPI import rag.py - not on every request
 # If lc_chroma_db doesn't exist yet, it builds and persists it
 PERSIST_DIR="./lc_chroma_db"
-KNOWLEDGE_FILE="knowledge.txt"
+KNOWLEDGE_DIR = "./knowledge_base"
 embeddings=OpenAIEmbeddings(model="text-embedding-3-small")
 
 if os.path.exists(PERSIST_DIR) and os.listdir(PERSIST_DIR):
@@ -30,7 +30,12 @@ if os.path.exists(PERSIST_DIR) and os.listdir(PERSIST_DIR):
     )
 else:
     # First run - build and persist
-    loader = TextLoader(KNOWLEDGE_FILE)
+    # Load all .txt files from the folder automatically
+    loader = DirectoryLoader(
+        KNOWLEDGE_DIR,
+        glob="**/*.txt",
+        loader_cls=TextLoader
+    )
     documents = loader.load()
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=200,

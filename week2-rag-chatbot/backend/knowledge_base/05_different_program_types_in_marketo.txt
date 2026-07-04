@@ -1,0 +1,11 @@
+Different Program Types in Adobe Marketo Engage
+Overview
+Adobe Marketo Engage has four official program types: Event, Engagement, Email, and Default.[cite:6] Programs act as containers for local assets such as landing pages, emails, and Smart Campaigns.[cite:6]
+Event Programs
+Event programs are used for campaigns tied to a specific time and date, including live or online events.[cite:6] They help coordinate, facilitate, and track event-related marketing activities.[cite:6][cite:36]
+Engagement Programs
+Engagement programs are designed for drip nurturing.[cite:6] They support ongoing communication at a set periodic schedule, which makes them suitable for lead nurture or onboarding tracks.[cite:6][cite:36]
+Email Programs
+Email programs are built for classic mail blasts.[cite:6] Adobe notes that they include built-in features such as A/B testing and Email Head Start, and they are especially useful for one-off targeted email campaigns.[cite:6][cite:36]
+Default Programs
+Default programs are used for campaigns that do not fit the Event, Engagement, or Email categories.[cite:6] Adobe describes them as flexible enough for varied marketing initiatives and even operational use cases such as lifecycle tracking or scoring programs.[cite:36][cite:6]

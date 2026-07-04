@@ -1,0 +1,9 @@
+Static List in Adobe Marketo Engage
+Overview
+Adobe describes Static Lists as one of the most simple and useful features in Marketo.[cite:33] A Static List is a list of names from the Marketo database whose membership is based on adding or removing each person rather than on defined rules.[cite:33]
+Difference from Smart Lists
+Adobe explicitly contrasts Static Lists with Smart Lists.[cite:33] Smart Lists are based on defined rules, while Static Lists are based on direct membership management.[cite:33]
+How people are added or removed
+Adobe lists several ways to add or remove people from a Static List, including Smart Campaign flow steps, single flow actions, dragging people into a list, and list import.[cite:33] This makes Static Lists useful when campaign operators need stable, intentional membership rather than automatically refreshed criteria.[cite:33]
+Use cases
+Adobe gives examples such as a pre-selected list for a marketing message, a competitors list, or a temporary operational list that Smart Campaigns later update.[cite:33] Static Lists are therefore valuable for controlled audience handling, especially when list membership should not change automatically as person data changes.[cite:33]

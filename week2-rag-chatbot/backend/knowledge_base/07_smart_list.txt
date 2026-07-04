@@ -1,0 +1,9 @@
+Smart List in Adobe Marketo Engage
+Overview
+Adobe defines Smart Lists as a way to find specific groups of people using simple filters.[cite:28] They are one of the most widely used targeting mechanisms in Marketo.[cite:28]
+Where Smart Lists are used
+Smart Lists are used in Smart Campaigns, programs, reports, segmentations, business models, engagement programs, and dynamic content.[cite:28] This broad usage makes them foundational to both campaign execution and operational management in Marketo.[cite:28]
+Types of placement
+Adobe explains that Smart Lists can be created in two places.[cite:28] They can exist in the Database for shared or global use, or inside programs as local assets relevant only to that program.[cite:28]
+Behavior
+Smart Lists are rule-based and dynamic.[cite:28][cite:33] Their membership changes automatically based on whether people meet the defined criteria, which makes them highly useful for ongoing segmentation and automation.[cite:28]

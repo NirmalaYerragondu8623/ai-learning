@@ -1,0 +1,10 @@
+Campaign Canvas in Oracle Eloqua
+Overview
+Campaign Canvas is Oracle Eloqua's visual workflow environment for building and managing multi-step campaigns.[cite:8] It is used to combine audience sources, journey logic, and communication assets into a single orchestrated flow.[cite:24][cite:8]
+Core function
+The Campaign Canvas helps marketers design how contacts move through a campaign over time.[cite:8] Instead of thinking only about a single email send, marketers define entry points, sequencing, and movement across connected steps.[cite:24]
+Audience on the canvas
+A key audience element on the canvas is Segment Members.[cite:24] Oracle explains that this element identifies the contacts to include as campaign members and can be configured to evaluate the segment only once at activation or continuously until the campaign is deactivated.[cite:24]
+This means Campaign Canvas supports both fixed-entry and rolling-entry campaign designs.[cite:24] Oracle also notes that the default re-evaluation frequency is every one day and recommends avoiding hourly re-evaluation because it can overload the system.[cite:24]
+Why it matters
+Campaign Canvas is especially useful for nurture journeys, lifecycle programs, and campaigns that require branching logic or ongoing audience entry.[cite:8][cite:24] Its strength is visual orchestration, but that strength also means campaign builders must manage logic carefully to avoid path confusion or operational complexity.[cite:8]

@@ -1,0 +1,36 @@
+Campaign Lifecycle in Oracle Eloqua and Adobe Marketo Engage
+Overview
+In both Oracle Eloqua and Adobe Marketo Engage, the campaign lifecycle spans planning, creation, scheduling, deployment, and maintenance, but the platforms structure that lifecycle differently.[cite:8][cite:6] Eloqua emphasizes campaign orchestration through the Campaign Canvas and audience evaluation rules, while Marketo organizes initiatives through programs and automation logic inside Smart Campaigns.[cite:24][cite:6]
+Campaign lifecycle in Oracle Eloqua
+
+Planning
+In Eloqua, planning starts with defining the audience, required assets, and whether the campaign should run as a simpler send or as a more advanced multi-step campaign.[cite:8] Audience planning is especially important because the Segment Members element determines how contacts enter the campaign.[cite:24]
+
+Creation
+Creation happens by assembling the workflow on the campaign structure, combining audience sources, campaign steps, and communication assets.[cite:8][cite:24] This allows Eloqua campaigns to support both direct execution and more elaborate nurture journeys.[cite:8]
+
+Scheduling
+Scheduling in Eloqua includes campaign activation timing and segment re-evaluation frequency.[cite:24] Oracle states that segment members can be added once at activation or regularly until the campaign is deactivated, with a default re-evaluation frequency of every one day.[cite:24]
+
+Deployment
+Deployment begins when the campaign is activated and contacts start entering through the configured audience element.[cite:24] From there, contacts proceed through the configured workflow and asset interactions defined in the campaign.[cite:8][cite:24]
+
+Maintenance
+Maintenance includes monitoring entries, exits, delivery, and stalled records through operational reporting.[cite:8] Oracle provides reports such as Campaign Audit, Campaign Entry, Campaign Exit, Campaign Email Statistics, Campaign SMS Statistics, and Stuck Records Report to support campaign monitoring.[cite:8]
+
+Campaign lifecycle in Adobe Marketo Engage
+
+Planning
+In Marketo, planning starts by selecting the appropriate program type: Event, Engagement, Email, or Default.[cite:6] This choice shapes the overall campaign model, whether the initiative is a one-off send, nurture stream, event workflow, or flexible operational program.[cite:6][cite:36]
+
+Creation
+Creation takes place inside programs, which act as containers for local assets such as emails, landing pages, and Smart Campaigns.[cite:6] Campaign logic is then built through Smart Campaigns, where the Smart List defines who qualifies and the Flow defines what happens next.[cite:25][cite:28]
+
+Scheduling
+Scheduling depends on campaign type and automation logic.[cite:25] Batch campaigns are scheduled to run at a set time, while trigger campaigns remain active and process people as qualifying actions occur.[cite:25][cite:36]
+
+Deployment
+Deployment happens when the program or Smart Campaign is activated.[cite:25][cite:36] Once active, qualified people are processed through the campaign rules configured in the Smart List, Flow, and Schedule structure.[cite:25]
+
+Maintenance
+Maintenance requires ongoing review of audience logic, campaign activity, and database hygiene.[cite:28][cite:33] Because Smart Lists can be dynamic and campaign logic often depends on data quality, poor governance can reduce targeting accuracy and reporting reliability.[cite:28][cite:33]
