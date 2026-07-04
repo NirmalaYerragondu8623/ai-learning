@@ -72,6 +72,12 @@ llm=ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
+RATE_LIMIT_MESSAGE = "I'm getting rate-limited by the AI provider right now. Please try again in a moment."
+
+def _is_rate_limited(exc: Exception) -> bool:
+    msg = str(exc)
+    return "RESOURCE_EXHAUSTED" in msg or "429" in msg
+
 # ---- LCEL chain ----------------------------------------------------
 chain=(
     {"context":retriever | format_docs, "question":RunnablePassthrough()}
@@ -82,22 +88,33 @@ chain=(
 
 # --- Main function called by FastAPI ---------------------------------------
 async def rag_answer(question:str)->tuple[str,list[str]]:
-    #Run the chain - LangChain's invoke is sync, wrap with asyncio
-    import asyncio
-    loop=asyncio.get_event_loop()
-    answer = await loop.run_in_executor(None, chain.invoke,question)
+    try:
+        #Run the chain - LangChain's invoke is sync, wrap with asyncio
+        import asyncio
+        loop=asyncio.get_event_loop()
+        answer = await loop.run_in_executor(None, chain.invoke,question)
 
-    #Get source chunks separately for citation
-    source_docs=retriever.invoke(question)
-    sources=[doc.page_content.replace("\n\n"," ").replace("\n"," ").strip() for doc in source_docs]
-    sources=list(dict.fromkeys(sources))
+        #Get source chunks separately for citation
+        source_docs=retriever.invoke(question)
+        sources=[doc.page_content.replace("\n\n"," ").replace("\n"," ").strip() for doc in source_docs]
+        sources=list(dict.fromkeys(sources))
 
-    return answer,sources
+        return answer,sources
+    except Exception as exc:
+        if _is_rate_limited(exc):
+            return RATE_LIMIT_MESSAGE, []
+        raise
 
 async def stream_rag_answer(question: str) -> AsyncGenerator[str, None]:
-    # Step 1: Retrieve relevant chunks (sync, fast)
-    source_docs = retriever.invoke(question)
-    context = "\n\n".join(doc.page_content for doc in source_docs)
+    try:
+        # Step 1: Retrieve relevant chunks (sync, fast)
+        source_docs = retriever.invoke(question)
+        context = "\n\n".join(doc.page_content for doc in source_docs)
+    except Exception as exc:
+        if _is_rate_limited(exc):
+            yield RATE_LIMIT_MESSAGE
+            return
+        raise
 
     # Step 2: Build the grounded prompt
     full_prompt = f"""Answer using ONLY the context below.
@@ -109,7 +126,13 @@ Context:
 Question: {question}"""
 
     # Step 3: Stream the generation using the Gemini chat model directly
-    async for chunk in llm.astream(full_prompt):
-        if chunk.content:
-            yield chunk.content
+    try:
+        async for chunk in llm.astream(full_prompt):
+            if chunk.content:
+                yield chunk.content
+    except Exception as exc:
+        if _is_rate_limited(exc):
+            yield RATE_LIMIT_MESSAGE
+            return
+        raise
 
