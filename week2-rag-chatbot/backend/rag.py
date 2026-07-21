@@ -3,12 +3,13 @@ vectorstore once at module level — not inside the function, or it re-loads on 
 
 
 import os
-import time
 from typing import AsyncGenerator
 from dotenv import load_dotenv,find_dotenv
+from openai import RateLimitError
+from tenacity import retry, retry_if_exception, wait_random_exponential, stop_after_attempt
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_chroma import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -16,12 +17,26 @@ from langchain_core.runnables import RunnablePassthrough
 
 load_dotenv(find_dotenv())
 
+def _is_rate_limited(exc: Exception) -> bool:
+    return isinstance(exc, RateLimitError) or "429" in str(exc) or "rate_limit" in str(exc).lower()
+
+# Shared by startup indexing and the /ingest endpoint so both survive transient
+# 429s/timeouts from the embeddings API instead of failing (or partially
+# indexing) on the first hiccup.
+@retry(
+    retry=retry_if_exception(_is_rate_limited),
+    wait=wait_random_exponential(min=2, max=60),
+    stop=stop_after_attempt(5),
+)
+def add_documents_with_retry(store: Chroma, docs, ids=None):
+    return store.add_documents(docs, ids=ids) if ids is not None else store.add_documents(docs)
+
 # --- Load vectorstore ONCE at module level -------------------------
 # This runs when FastAPI import rag.py - not on every request
 # If lc_chroma_db doesn't exist yet, it builds and persists it
-PERSIST_DIR="./lc_chroma_db"
+PERSIST_DIR=os.getenv("PERSIST_DIR", "./lc_chroma_db")
 KNOWLEDGE_DIR = "./knowledge_base"
-embeddings=GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
+embeddings=OpenAIEmbeddings(model="text-embedding-3-small")
 
 if os.path.exists(PERSIST_DIR) and os.listdir(PERSIST_DIR):
     #Already indexed - just load from disk
@@ -46,15 +61,11 @@ else:
     )
     chunks=splitter.split_documents(documents)
 
-    # Gemini's free tier caps embedding calls at ~100/minute. Feed chunks in
-    # small batches with a cooldown so a large first-time index doesn't 429.
     EMBED_BATCH_SIZE = 80
     vectorstore=Chroma(persist_directory=PERSIST_DIR, embedding_function=embeddings)
     for i in range(0, len(chunks), EMBED_BATCH_SIZE):
         batch = chunks[i:i + EMBED_BATCH_SIZE]
-        vectorstore.add_documents(batch)
-        if i + EMBED_BATCH_SIZE < len(chunks):
-            time.sleep(65)
+        add_documents_with_retry(vectorstore, batch)
 
 retriever = vectorstore.as_retriever(search_kwargs={"k":3})
 
@@ -67,16 +78,12 @@ Context:{context}
 Question:{question}
 """)
 
-llm=ChatGoogleGenerativeAI(model="gemini-2.5-flash")
+llm=ChatOpenAI(model="gpt-4o-mini")
 
 def format_docs(docs):
     return "\n\n".join(doc.page_content for doc in docs)
 
 RATE_LIMIT_MESSAGE = "I'm getting rate-limited by the AI provider right now. Please try again in a moment."
-
-def _is_rate_limited(exc: Exception) -> bool:
-    msg = str(exc)
-    return "RESOURCE_EXHAUSTED" in msg or "429" in msg
 
 # ---- LCEL chain ----------------------------------------------------
 chain=(
@@ -125,7 +132,7 @@ Context:
 
 Question: {question}"""
 
-    # Step 3: Stream the generation using the Gemini chat model directly
+    # Step 3: Stream the generation using the chat model directly
     try:
         async for chunk in llm.astream(full_prompt):
             if chunk.content:

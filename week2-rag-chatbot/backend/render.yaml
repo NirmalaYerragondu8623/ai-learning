@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: rag-chatbot-backend
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-deploy.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: PERSIST_DIR
+        value: ./lc_chroma_db
+    # Without a persistent disk, PERSIST_DIR is wiped on every redeploy/restart
+    # and rag.py rebuilds the vectorstore from knowledge_base/ on next boot.
+    # For this project's tiny knowledge base (~60 chunks) that's cheap and fast.
+    # To keep uploads/state across restarts instead, uncomment below, set
+    # PERSIST_DIR to the mount path, and switch `plan` to a paid tier (the
+    # free plan doesn't support persistent disks):
+    # disk:
+    #   name: chroma-data
+    #   mountPath: /data
+    #   sizeGB: 1
