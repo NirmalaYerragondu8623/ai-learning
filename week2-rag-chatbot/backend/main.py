@@ -3,11 +3,14 @@ import hashlib
 import os
 import tempfile
 
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 from models import RagRequest, RagResponse
 from rag import rag_answer, stream_rag_answer, vectorstore, add_documents_with_retry, _is_rate_limited
@@ -21,6 +24,13 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    return JSONResponse(status_code=429, content={"error": "Too many requests. Please slow down and try again shortly."})
+
 MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
 CHUNK_READ_SIZE = 1024 * 1024
 
@@ -29,12 +39,14 @@ async def health():
     return {"status":"OK","model":"gpt-4o-mini"}
 
 @app.post("/query", response_model=RagResponse)
-async def rag_query(req:RagRequest):
+@limiter.limit("5/minute")
+async def rag_query(request: Request, req: RagRequest):
     answer,sources=await rag_answer(req.question)
     return RagResponse(answer=answer,sources=sources)
 
 @app.post("/query/stream")
-async def rag_query_stream(req: RagRequest):
+@limiter.limit("5/minute")
+async def rag_query_stream(request: Request, req: RagRequest):
     return StreamingResponse(
         stream_rag_answer(req.question),
         media_type="text/event-stream"
@@ -90,7 +102,8 @@ def _process_and_index(tmp_path: str, filename: str) -> int:
     return len(chunks)
 
 @app.post("/ingest")
-async def ingest_file(file: UploadFile = File(...)):
+@limiter.limit("5/minute")
+async def ingest_file(request: Request, file: UploadFile = File(...)):
     if not file.filename or not file.filename.lower().endswith(".txt"):
         raise HTTPException(status_code=400, detail="Only .txt files are supported")
 
