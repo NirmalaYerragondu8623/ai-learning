@@ -24,7 +24,17 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-limiter = Limiter(key_func=get_remote_address)
+def get_client_ip(request: Request) -> str:
+    # Render (and most reverse proxies) terminate the real connection, so
+    # request.client.host is the proxy's internal hop, not the caller's IP,
+    # and it varies per request - defeating per-client limiting entirely.
+    # The actual client IP is the first entry in X-Forwarded-For.
+    forwarded = request.headers.get("x-forwarded-for")
+    if forwarded:
+        return forwarded.split(",")[0].strip()
+    return get_remote_address(request)
+
+limiter = Limiter(key_func=get_client_ip)
 app.state.limiter = limiter
 
 @app.exception_handler(RateLimitExceeded)
