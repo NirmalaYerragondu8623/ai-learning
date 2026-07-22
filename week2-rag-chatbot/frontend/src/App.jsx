@@ -93,12 +93,18 @@ export default function App() {
         body: formData // No Content-Type header — browser sets it with boundary
       });
 
-      if (!res.ok) throw new Error("Upload failed");
-
       const data = await res.json();
+
+      if (!res.ok) {
+        // Backend returns a specific reason (bad file type, too large, invalid
+        // encoding, rate-limited, etc.) in `detail` — surface it instead of a
+        // generic message so the user knows what to actually fix.
+        throw new Error(data.detail || "Upload failed");
+      }
+
       setUploadStatus(`✅ ${data.filename} — ${data.chunks_added} chunks indexed. Ready to query!`);
     } catch (err) {
-      setUploadStatus("❌ Upload failed. Please try a .txt file.");
+      setUploadStatus(`❌ ${err.message || "Upload failed. Please try a .txt file."}`);
     } finally {
       setUploading(false);
       e.target.value = ""; // Reset file input
