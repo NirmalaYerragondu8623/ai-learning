@@ -1,4 +1,5 @@
 import asyncio
+import sys
 from typing import TypedDict, Optional, Annotated
 from dotenv import load_dotenv, find_dotenv
 from langchain_chroma import Chroma
@@ -13,6 +14,7 @@ import os
 from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
+from langgraph.checkpoint.memory import MemorySaver
 
 load_dotenv(find_dotenv())
 
@@ -39,15 +41,24 @@ class AgentState(TypedDict):
 # TOOL DEFINITION
 @tool
 def get_todays_date()->str:
-    """Use this to get today's current date. Call this whenever the user asks what 
-    today's date is or asking something depends on knowing the current date 
+    """Use this to get today's current date. Call this whenever the user asks what
+    today's date is or asking something depends on knowing the current date
     (e.g., 'how many days until X'). Takes no input.
     Return the date as a string in YYYY-MM-DD format."""
     return str(date.today())
 
+@tool
+def retrieve_docs(query:str)->str:
+    """Use this to answer questions about the internal knowledge base (e.g., email
+    marketing, segmentation strategies, Marketo/Eloqua topics). Retrieves the most
+    relevant chunks from the vector store so you can ground your answer in them.
+    Takes the user's question as input. Returns the raw retrieved text."""
+    results=chroma_collection.similarity_search_with_relevance_scores(query,k=3)
+    return "\n\n".join(doc.page_content for doc,_ in results)
+
 
 # BIND TOOLS TO LLM
-llm_with_tools=llm.bind_tools([get_todays_date])
+llm_with_tools=llm.bind_tools([get_todays_date,retrieve_docs])
 
 # NODE FUNCTIONS
 def call_model_node(state:AgentState) -> AgentState:
@@ -89,28 +100,15 @@ def rag_answer_node(state:AgentState)->AgentState:
     return {**state,"answer":answer,"route":"rag_answer"}
 
 def web_search_node(state:AgentState)->AgentState:
-    search_results=web_search_tool.invoke(state["query"])
-    try:
-        response=llm.invoke(
-            "Answer the question using the web search context below. "
-            "If any specific figures (numbers, dates, prices, etc.) are present anywhere in the "
-            "context, state them directly instead of describing that the information exists.\n\n"
-            f"Context:\n{search_results}\n\nQuestion:{state['query']}"
-        )
-        answer=response.content
-    except Exception as exc:
-        if _is_rate_limited(exc):
-            answer=RATE_LIMIT_MESSAGE
-        else:
-            raise
-    return {**state,"answer":answer,"route":"web_search"}
+    result=web_search_tool.invoke(state["query"])
+    return {**state,"answer":result,"route":"web_search"}
 
 def clarify_node(state:AgentState)->AgentState:
     return {**state,"answer":"Could you clarify what you'd like to know more about?","route":"clarify"}
 
 # GRAPH WIRING : Day10 stand alone tool-calling graph (test this in isolation first)
 tool_graph=StateGraph(AgentState)
-tool_node=ToolNode([get_todays_date])
+tool_node=ToolNode([get_todays_date,retrieve_docs])
 
 tool_graph.add_node("call_model",call_model_node)
 tool_graph.add_node("tools",tool_node)
@@ -122,7 +120,8 @@ tool_graph.add_conditional_edges(
     )
 tool_graph.add_edge("tools","call_model")
 
-app_tools=tool_graph.compile()    # <-- separate compiled app, just for today's test
+checkpointer=MemorySaver()
+app_tools=tool_graph.compile(checkpointer=checkpointer)    # <-- separate compiled app, just for today's test
 
 
 # GRAPH WIRING
@@ -150,13 +149,7 @@ graph.add_edge("rag_answer",END)
 graph.add_edge("web_search",END)
 graph.add_edge("clarify",END)
 
-app=graph.compile()
-
-result=app.invoke({"query":"Explain in few more lines"})
-print({"query":result["query"],"route":result["route"],"answer":result["answer"]})
-
-
-
+app=graph.compile(checkpointer=checkpointer)
 
 
 def message_text(message)->str:
@@ -167,14 +160,32 @@ def message_text(message)->str:
     return message.content
 
 if __name__=="__main__":
-   result=app_tools.invoke({
-       "query":"",
-       "messages":[HumanMessage(content="What's today's date?")]
-   })
-   print(message_text(result["messages"][-1]))
+    config = {"configurable": {"thread_id": "conv-1"}}
+    # Turn 1 — RAG question
+    r1 = app_tools.invoke(
+        {"messages": [HumanMessage(content="What email platforms are mentioned in the docs for segmentation?")]},
+        config
+    )
+    print(message_text(r1["messages"][-1]))
 
-   result2=app_tools.invoke({
-       "query":"What is LangGraph?",
-       "messages":[HumanMessage(content="What is LangGraph?")]
-   })
-   print(message_text(result2["messages"][-1]))
+    # Turn 2 — follow-up that only makes sense with memory of turn 1
+    r2 = app_tools.invoke(
+        {"messages": [HumanMessage(content="Which of those did you mention first?")]},
+        config
+    )
+    print(message_text(r2["messages"][-1]))
+
+    # Turn 3 — should trigger the tool
+    r3 = app_tools.invoke(
+        {"messages": [HumanMessage(content="What's today's date?")]},
+        config
+    )
+    print(message_text(r3["messages"][-1]))
+
+    # Turn 4 — same question as turn 2, but switch thread_id mid-conversation
+    config_broken = {"configurable": {"thread_id": "conv-2"}}
+    r4 = app_tools.invoke(
+        {"messages": [HumanMessage(content="Which of those did you mention first?")]},
+        config_broken
+    )
+    print(message_text(r4["messages"][-1])) 
